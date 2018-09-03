@@ -1,0 +1,9 @@
+*.jpg
+*.xml
+*.csv
+*.binaryproto
+*.mdb
+*.tar.gz
+PKLot/*
+PKLot/**/*.*
+caffe_models/caffe_model_1/snapshot_iter_*.*

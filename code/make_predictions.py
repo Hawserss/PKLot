@@ -1,4 +1,5 @@
 import os
+import sys
 import glob
 import caffe
 import image
@@ -69,3 +70,5 @@ def makePredictions(sourceDir):
             f.write(str(test_ids[i])+", "+str(labels[i])+", "+str(preds[i])+"\n")
         
     f.close()
+
+makePredictions(sys.argv[1])

@@ -7,21 +7,13 @@ layer {
   include {
     phase: TRAIN
   }
- transform_param {
-   mirror: true
-   crop_size: 70
-   mean_file: "input/mean.binaryproto"
- }
-# mean pixel / channel-wise mean instead of mean image
-#  transform_param {
-#    crop_size: 227
-#    mean_value: 104
-#    mean_value: 117
-#    mean_value: 123
-#    mirror: true
-#  }
+  transform_param {
+    mirror: true
+    crop_size: 70
+    mean_file: "input/UFPR04/mean.binaryproto"
+  }
   data_param {
-    source: "input/train_lmdb"
+    source: "input/UFPR04/train_lmdb"
     batch_size: 64
     backend: LMDB
   }
@@ -34,21 +26,13 @@ layer {
   include {
     phase: TEST
   }
- transform_param {
-   mirror: false
-   crop_size: 70
-   mean_file: "input/mean.binaryproto"
- }
-# mean pixel / channel-wise mean instead of mean image
-#  transform_param {
-#    crop_size: 227
-#    mean_value: 104
-#    mean_value: 117
-#    mean_value: 123
-#    mirror: true
-#  }
+  transform_param {
+    mirror: false
+    crop_size: 70
+    mean_file: "input/UFPR04/mean.binaryproto"
+  }
   data_param {
-    source: "input/validation_lmdb"
+    source: "input/UFPR04/validation_lmdb"
     batch_size: 100
     backend: LMDB
   }

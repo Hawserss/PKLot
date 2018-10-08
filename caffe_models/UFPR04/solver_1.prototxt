@@ -1,4 +1,4 @@
-net: "caffe_models/caffe_model_1/caffenet_train_val_1.prototxt"
+net: "caffe_models/UFPR04/caffenet_train_val_1.prototxt"
 test_iter: 1000
 test_interval: 1000
 base_lr: 0.001
@@ -10,5 +10,5 @@ max_iter: 40000
 momentum: 0.9
 weight_decay: 0.0005
 snapshot: 5000
-snapshot_prefix: "caffe_models/caffe_model_1/snapshot"
+snapshot_prefix: "caffe_models/UFPR04/snapshot"
 solver_mode: GPU

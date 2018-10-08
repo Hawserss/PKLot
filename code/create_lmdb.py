@@ -43,7 +43,7 @@ def toDate(img_path):
     year = int(vDate[0])
     month = int(vDate[1])
     day = int(vDate[2])
-    return datetime.date(year, month, day);    
+    return datetime.date(year, month, day)    
 
 def load_data(lot, window):    
     raw_data = [img for img in glob.glob("../PKLot/PKLotSegmented/"+lot+"/**/*jpg", recursive=True)]

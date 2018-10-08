@@ -4,6 +4,8 @@
 *.binaryproto
 *.mdb
 *.tar.gz
-PKLot/*
-PKLot/**/*.*
-caffe_models/caffe_model_1/snapshot_iter_*.*
+PKLot
+caffe_models/**/snapshot_iter_*.*
+code/__pycache__
+sources
+input

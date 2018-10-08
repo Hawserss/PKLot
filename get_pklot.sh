@@ -2,7 +2,6 @@
 # Este script baixa e descompacta o PKLot data set para uso.
 SOURCES=sources
 INPUT=input
-PKLOT_SEGMENTED=PKLot/PKLotSegmented/UFPR04
 
 if [ ! -d "$SOURCES" ]; then 
     echo "Diretório não encontrado, criando diretório /${SOURCES}"

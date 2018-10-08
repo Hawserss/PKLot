@@ -10,7 +10,7 @@ from caffe.proto import caffe_pb2
 '''
 Making predicitions
 '''
-def makePredictions(sourceDir):
+def makePredictions(modelDir, sourceDir):
     caffe.set_mode_gpu() 
 
     '''
@@ -18,15 +18,15 @@ def makePredictions(sourceDir):
     '''
     #Read mean image
     mean_blob = caffe_pb2.BlobProto()
-    with open('../input/mean.binaryproto', 'rb') as f:
+    with open('../input/' + modelDir + '/mean.binaryproto', 'rb') as f:
         mean_blob.ParseFromString(f.read())
     mean_array = np.asarray(mean_blob.data, dtype=np.float32).reshape(
         (mean_blob.channels, mean_blob.height, mean_blob.width))
 
 
     #Read model architecture and trained model's weights
-    net = caffe.Net('../caffe_models/caffe_model_1/caffenet_deploy_1.prototxt',
-                    '../caffe_models/caffe_model_1/snapshot_iter_30000.caffemodel',
+    net = caffe.Net('../caffe_models/' + modelDir + '/caffenet_deploy_1.prototxt',
+                    '../caffe_models/' + modelDir + '/snapshot_iter_40000.caffemodel',
                     caffe.TEST)
 
     #Define image transformers
@@ -38,10 +38,11 @@ def makePredictions(sourceDir):
     test_img_paths = [img_path for img_path in glob.glob("../PKLot/PKLotSegmented/" + sourceDir + "/**/*.jpg", recursive=True)]
 
     #Making predictions
-    test_ids = []
-    labels = []
-    preds = []
-    hits = []
+    truePositives = 0
+    trueNegatives = 0
+    falsePositives = 0
+    falseNegatives = 0
+
     for img_path in test_img_paths:
         img = image.load_transform_img(img_path, img_width=image.IMAGE_WIDTH, img_height=image.IMAGE_HEIGHT)
 
@@ -49,26 +50,30 @@ def makePredictions(sourceDir):
         out = net.forward()
         pred_probas = out['prob']
 
+        result = pred_probas.argmax()
         label = 0
         if 'Empty' in img_path:
             label = 0
+            if result == label:
+                trueNegatives += 1
+            else:
+                falseNegatives += 1
         else:
             label = 1
-        labels = labels + [label]
-        test_ids = test_ids + [img_path]
-        preds = preds + [pred_probas.argmax()]
-        if label == pred_probas.argmax():
-            hits = hits + [True] 
-        else:
-            hits = hits + [False]
-    
-    with open("../caffe_models/caffe_model_1/results_" + sourceDir + ".csv","w") as f:
-        true_positives = sum(1 for item in hits if item)
-        f.write('Acurácia: ' + str(true_positives/len(hits))+ '\n')
-        f.write("id, label, predicted_label\n")
-        for i in range(len(test_ids)):
-            f.write(str(test_ids[i])+", "+str(labels[i])+", "+str(preds[i])+"\n")
+            if result == label:
+                truePositives += 1
+            else:
+                falsePositives += 1
         
+    P = truePositives+falsePositives
+    N = trueNegatives+falseNegatives
+    with open("../caffe_models/" + modelDir + "/results_matrix_" + sourceDir + ".txt", "w") as f:
+        f.write('Empty:    |' + str(trueNegatives) + ' | ' + str(falseNegatives) + '\n')
+        f.write('Occupied: |' + str(truePositives) + ' | ' + str(falsePositives) + '\n')
+        f.write('TA:       |' + str((truePositives+trueNegatives)/(P+N)) + '\n')
+        f.write('TPR:      |' + str(truePositives/P)+ '\n')
+        f.write('TNR:      |' + str(trueNegatives/N)+ '\n')
+
     f.close()
 
-makePredictions(sys.argv[1])
+makePredictions(sys.argv[1], sys.argv[2])

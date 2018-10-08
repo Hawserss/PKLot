@@ -3,6 +3,7 @@
 *.csv
 *.binaryproto
 *.mdb
+*.log
 *.tar.gz
 PKLot
 caffe_models/**/snapshot_iter_*.*

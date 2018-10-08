@@ -45,21 +45,41 @@ def toDate(img_path):
     day = int(vDate[2])
     return datetime.date(year, month, day);    
 
-def load_data(year, month, day, window):
-    vDate = datetime.date(year, month, day)
-    d = timedelta(days=window)
-    vDateF = vDate + d
+def load_data(lot, window):    
+    raw_data = [img for img in glob.glob("../PKLot/PKLotSegmented/"+lot+"/**/*jpg", recursive=True)]
+    # if toDate(img) >= vDate and toDate(img) <= vDateF]
+
+    '''
+    Aplicando o protocolo:
+    '''
+    # Obtenho as datas das imagens
+    date_list = list(set([toDate(img).strftime('%Y-%m-%d') for img in raw_data]))
+    date_list.sort()
+    date_list = date_list[0:int(window)]
     
-    raw_data = [img for img in glob.glob("../PKLot/PKLotSegmented/UFPR04/**/*jpg", recursive=True) if toDate(img) >= vDate and toDate(img) <= vDateF]
-    random.shuffle(raw_data)
+    # Randomizo a lista de datas para pegar as datas de maneira aleatória.
+    random.shuffle(date_list)
+    
+    # Defino o tamanho da amostragem de treinamento
+    train_range = int(len(date_list) * 0.8)
+    # Filtro as datas em dias utilizados para treinamento
+    train_list = date_list[0:train_range]
+    # Filtro as datas em dias utilizados para validação
+    test_list = date_list[train_range:]
 
-    train_range = int(len(raw_data) * 0.6)
+    # Aplico o filtro das imagens para utilizar as imagens da data de alvo para treinamento.
+    train_data = [img for img in raw_data if toDate(img).strftime('%Y-%m-%d') in train_list]
+    # Aplico o filtro das imagens para utilizar as imagens da data de alvo para validação.
+    test_data = [img for img in raw_data if toDate(img).strftime('%Y-%m-%d') in test_list]   
 
-    train_data = raw_data[0:train_range]
-    test_data = raw_data[train_range:]
+    # Randomizamos os dados de treinamento
+    random.shuffle(train_data)
 
-    train_lmdb = '../input/train_lmdb'
-    validation_lmdb = '../input/validation_lmdb'
+    # Randomizamos os dados de validação
+    random.shuffle(test_data)
+
+    train_lmdb = '../input/'+ lot + '/train_lmdb'
+    validation_lmdb = '../input/'+ lot + '/validation_lmdb'
 
     os.system('rm -rf  ' + train_lmdb)
     os.system('rm -rf  ' + validation_lmdb)
@@ -74,10 +94,7 @@ def load_data(year, month, day, window):
     print('\nFinished processing all images')
 
 
-argyear = int(sys.argv[1])
-argmonth = int(sys.argv[2])
-argday = int(sys.argv[3])
-argwindow = int(sys.argv[4])
+arglot = sys.argv[1]
+argwindow = int(sys.argv[2])
 
-#load_data(2012, 12, 7, 10)
-load_data(argyear, argmonth, argday, argwindow)
+load_data(arglot, argwindow)

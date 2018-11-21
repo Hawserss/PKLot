@@ -1,4 +1,7 @@
 import os
+
+os.environ['GLOG_minloglevel'] = '3'
+
 import sys
 import glob
 import random
@@ -26,6 +29,7 @@ def create_lmdb(lmdb_file, data):
     in_db = lmdb.open(lmdb_file, map_size=int(1e12))
     with in_db.begin(write=True) as in_txn:
         for in_idx, img_path in enumerate(data):
+            sys.stdout.write('\r')
             if in_idx %  6 == 0:
                 continue
             img = image.load_transform_img(img_path, img_width=image.IMAGE_WIDTH, img_height=image.IMAGE_HEIGHT)
@@ -35,7 +39,10 @@ def create_lmdb(lmdb_file, data):
                 label = 1
             datum = make_datum(img, label)
             in_txn.put('{:0>5d}'.format(in_idx).encode(), datum.SerializeToString())
-            print('{:0>5d}'.format(in_idx) + ':' + img_path)
+
+            j = (in_idx + 1)/len(data)
+            sys.stdout.write("[%-50s] %d%%" % ('='*int(50*j), 100*j))
+            sys.stdout.flush()
     in_db.close()
 
 def toDate(img_path):
@@ -46,8 +53,7 @@ def toDate(img_path):
     return datetime.date(year, month, day)    
 
 def load_data(lot, window):    
-    raw_data = [img for img in glob.glob("../PKLot/PKLotSegmented/"+lot+"/**/*jpg", recursive=True)]
-    # if toDate(img) >= vDate and toDate(img) <= vDateF]
+    raw_data = [img for img in glob.glob("PKLot/PKLotSegmented/"+lot+"/**/*jpg", recursive=True)]
 
     '''
     Aplicando o protocolo:
@@ -78,8 +84,8 @@ def load_data(lot, window):
     # Randomizamos os dados de validação
     random.shuffle(test_data)
 
-    train_lmdb = '../input/'+ lot + '/train_lmdb'
-    validation_lmdb = '../input/'+ lot + '/validation_lmdb'
+    train_lmdb = 'input/'+ lot + '/train_lmdb'
+    validation_lmdb = 'input/'+ lot + '/validation_lmdb'
 
     os.system('rm -rf  ' + train_lmdb)
     os.system('rm -rf  ' + validation_lmdb)

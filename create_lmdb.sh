@@ -12,9 +12,7 @@ do
             mkdir input/$LOT/validation_lmdb
         fi
         echo "Criando LMDB"
-        cd code
-        python3 create_lmdb.py $LOT 7
-        cd ..
+        python3 code/create_lmdb.py $LOT 7
         echo "LMDB criado"
 
         echo "Gerando a imagem média dos dados de treinamento"        
